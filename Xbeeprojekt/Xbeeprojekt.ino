@@ -14,6 +14,7 @@ int atticTemp = A0;
 int roomTemp = A0;
 int outDoorTemp = A0;
 int windowsStatusPin = 3;
+int burglerAlarmPin = 4;
 boolean burglerAlarmOn = false;
 
 void setup() {
@@ -30,10 +31,13 @@ void setup() {
   pinMode(roomTemp, INPUT);
   pinMode(outDoorTemp, INPUT);
   pinMode(windowsStatusPin, INPUT);
+  pinMode(burglerAlarmPin, INPUT);
 }
+
 
 void loop() {
   readFromXbee();
+  burglerAlarm();
 }
 void readFromXbee(){
   if (Xbee.available()) {
@@ -47,6 +51,15 @@ void readFromXbee(){
     }
   }
 }
+void burglerAlarm(){
+  if(burglerAlarmOn == true){
+    if(digitalRead(burglerAlarmPin) == LOW){
+      Serial.print("160001");
+    }
+     
+  }
+}
+
 void checkFirst5Byte() {
   if (inbytes[0] == '1' && inbytes[1] == '1' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // read Attic temp
@@ -54,7 +67,7 @@ void checkFirst5Byte() {
   } else if (inbytes[0] == '1' && inbytes[1] == '1' && inbytes[2] == '1' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set Attic temp
   } else if (inbytes[0] == '1' && inbytes[1] == '2' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
-    // REad room temp
+    //read room temp
     readTemp(roomTemp);
   } else if (inbytes[0] == '1' && inbytes[1] == '3' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // read outdoor temp
