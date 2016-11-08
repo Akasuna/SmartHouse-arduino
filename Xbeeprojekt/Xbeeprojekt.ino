@@ -1,6 +1,7 @@
 #include <SoftwareSerial.h>
 
 SoftwareSerial Xbee(0, 1);
+int countSize = 6;
 char inbytes[6];
 int inbyte = 0;
 int count = 0;
@@ -13,9 +14,11 @@ int atticTemp = A0;
 int roomTemp = A0;
 int outDoorTemp = A0;
 int windowsStatusPin = 3;
+boolean burglerAlarmOn = false;
 
 void setup() {
   // put your setup code here, to run once:
+  
   Serial.begin(9600);
   Xbee.begin(9600);
   pinMode(redPin, OUTPUT);
@@ -30,12 +33,15 @@ void setup() {
 }
 
 void loop() {
+  readFromXbee();
+}
+void readFromXbee(){
   if (Xbee.available()) {
     //Läser in 10 skickade char i en array
     inbyte = Xbee.read();
     inbytes[count] = inbyte;
     count++;
-    if (count == 6) {
+    if (count == countSize) {
       count = 0;
       checkFirst5Byte();
     }
@@ -91,22 +97,23 @@ void checkFirst5Byte() {
 
   }
 }
-void readTemp(int pin){// can be used for in room and attic
+void readTemp(int pin) { // can be used for in room and attic
   double Temp = (5.0 * analogRead(pin) * 100.0) / 1024;
   Serial.println(Temp);
 }
-void windowsStatus(){
-  if (digitalRead(windowsStatusPin) == HIGH) {
-    Serial.println("190001");
-  } else {
-    Serial.println("190000");
-  }
-}
-void stove() {// check if stove is on 
+
+void stove() {// check if stove is on
   if (digitalRead(stovePin) == HIGH) {
     Serial.println("180001");
   } else {
     Serial.println("180000");
+  }
+}
+void windowsStatus() { // check windowsStatus
+  if (digitalRead(windowsStatusPin) == HIGH) {
+    Serial.println("190001");
+  } else {
+    Serial.println("190000");
   }
 }
 void indoorLightStatus() {
@@ -118,7 +125,7 @@ void indoorLightStatus() {
 }
 void indoorLightsOnOff() {
   if (inbytes[5] == '1') {
-    
+
     if (digitalRead(redPin) == HIGH) {
       Serial.print("260001");
     } else {
