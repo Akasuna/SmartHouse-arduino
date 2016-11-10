@@ -42,8 +42,13 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
- //stoveStatus();
- if (Xbee.available()) {
+  //stoveStatus();
+  readXbee();
+  fireAlarm();
+
+}
+void readXbee() {
+  if (Xbee.available()) {
     //Läser in 10 skickade char i en array
     inbyte = Xbee.read();
     inbytes[count] = inbyte;
@@ -52,37 +57,35 @@ void loop() {
       count = 0;
       checkFirst5Byte();
     }
-
-    
-
-    
   }
-  if(digitalRead(fire) == HIGH){
-    
-    if(fireCount == false){
+}
+void fireAlarm() {
+  if (digitalRead(fire) == HIGH) {
+
+    if (fireCount == false) {
       Serial.print("150001");
       fireCount  = true;
     }
-  }else{
+  } else {
     fireCount = false;
-    }
- 
-}void indoorLightsOnOff() {
+  }
+}
+void indoorLightsOnOff() {
   if (inbytes[5] == '1') {
-    
+
     digitalWrite(multiplexB4, LOW);
-    digitalWrite(multiplexB5,LOW);
+    digitalWrite(multiplexB5, LOW);
     digitalWrite(multiplexB3, HIGH);
     digitalWrite(multiplexB0, LOW);
 
   }
-//put lights off
+  //put lights off
   else if (inbytes[5] == '0') {
 
-   digitalWrite(multiplexB4, HIGH);
-   digitalWrite(multiplexB5,LOW);
-   digitalWrite(multiplexB3, HIGH);
-   digitalWrite(multiplexB0, LOW);
+    digitalWrite(multiplexB4, HIGH);
+    digitalWrite(multiplexB5, LOW);
+    digitalWrite(multiplexB3, HIGH);
+    digitalWrite(multiplexB0, LOW);
 
 
   } else {
@@ -141,17 +144,17 @@ void checkFirst5Byte() {
   }
 }
 
-void stoveStatus(){
+void stoveStatus() {
   delay(1000);
   Serial.println(digitalRead(stove));
-  if(digitalRead(stove) == HIGH){
+  if (digitalRead(stove) == HIGH) {
     Serial.print("180001");
-    
+
   } else {
     Serial.print("180000");
   }
 }
-void outdoorlight(){
-  
+void outdoorlight() {
+
 }
 
