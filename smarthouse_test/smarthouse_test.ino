@@ -138,15 +138,15 @@ void multiplex(int b4,int b5,int b3,int b0){
 void checkFirst5Byte() {
   if (inbytes[0] == '1' && inbytes[1] == '1' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // read Attic temp
-    //readTemp(atticTemp);
+    readTemp(atticTemp);
   } else if (inbytes[0] == '1' && inbytes[1] == '1' && inbytes[2] == '1' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set Attic temp
   } else if (inbytes[0] == '1' && inbytes[1] == '2' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // REad room temp
-    //readTemp(roomTemp);
+    readTemp(inTemp);
   } else if (inbytes[0] == '1' && inbytes[1] == '3' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // read outdoor temp
-    //readTemp(outDoorTemp);
+    readTemp(outTemp);
   } else if (inbytes[0] == '1' && inbytes[1] == '4' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read power consumption
   } else if (inbytes[0] == '1' && inbytes[1] == '5' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
@@ -194,6 +194,10 @@ void stoveStatus() {
   } else {
     Serial.print("180000");
   }
+}
+void readTemp(int pin){// can be used for in room and attic
+  double Temp = (5.0 * analogRead(pin) * 100.0) / 1024;
+  Serial.println(Temp);
 }
 void outdoorLightsOnOff() {
 if (inbytes[5] == '1') {
