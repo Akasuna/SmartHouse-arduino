@@ -1,6 +1,7 @@
 #include <SoftwareSerial.h>
 
 SoftwareSerial Xbee(0, 1);
+int countSize = 6;
 char inbytes[6];
 int inbyte = 0;
 int count = 0;
@@ -12,9 +13,13 @@ int stovePin = 2;
 int atticTemp = A0;
 int roomTemp = A0;
 int outDoorTemp = A0;
+int windowsStatusPin = 3;
+int burglerAlarmPin = 4;
+boolean burglerAlarmOn = false;
 
 void setup() {
   // put your setup code here, to run once:
+  
   Serial.begin(9600);
   Xbee.begin(9600);
   pinMode(redPin, OUTPUT);
@@ -25,20 +30,36 @@ void setup() {
   pinMode(atticTemp, INPUT);
   pinMode(roomTemp, INPUT);
   pinMode(outDoorTemp, INPUT);
+  pinMode(windowsStatusPin, INPUT);
+  pinMode(burglerAlarmPin, INPUT);
 }
 
+
 void loop() {
+  readFromXbee();
+  burglerAlarm();
+}
+void readFromXbee(){
   if (Xbee.available()) {
     //Läser in 10 skickade char i en array
     inbyte = Xbee.read();
     inbytes[count] = inbyte;
     count++;
-    if (count == 6) {
+    if (count == countSize) {
       count = 0;
       checkFirst5Byte();
     }
   }
 }
+void burglerAlarm(){
+  if(burglerAlarmOn == true){
+    if(digitalRead(burglerAlarmPin) == LOW){
+      Serial.print("160001");
+    }
+     
+  }
+}
+
 void checkFirst5Byte() {
   if (inbytes[0] == '1' && inbytes[1] == '1' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // read Attic temp
@@ -46,7 +67,7 @@ void checkFirst5Byte() {
   } else if (inbytes[0] == '1' && inbytes[1] == '1' && inbytes[2] == '1' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set Attic temp
   } else if (inbytes[0] == '1' && inbytes[1] == '2' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
-    // REad room temp
+    //read room temp
     readTemp(roomTemp);
   } else if (inbytes[0] == '1' && inbytes[1] == '3' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // read outdoor temp
@@ -63,6 +84,7 @@ void checkFirst5Byte() {
     stove();
   } else if (inbytes[0] == '1' && inbytes[1] == '9' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read windows status
+    windowsStatus();
   } else if (inbytes[0] == '2' && inbytes[1] == '1' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read power outage status
   } else if (inbytes[0] == '2' && inbytes[1] == '2' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
@@ -88,15 +110,23 @@ void checkFirst5Byte() {
 
   }
 }
-void readTemp(int pin){// can be used for in room and attic
+void readTemp(int pin) { // can be used for in room and attic
   double Temp = (5.0 * analogRead(pin) * 100.0) / 1024;
   Serial.println(Temp);
 }
-void stove() {
+
+void stove() {// check if stove is on
   if (digitalRead(stovePin) == HIGH) {
     Serial.println("180001");
   } else {
     Serial.println("180000");
+  }
+}
+void windowsStatus() { // check windowsStatus
+  if (digitalRead(windowsStatusPin) == HIGH) {
+    Serial.println("190001");
+  } else {
+    Serial.println("190000");
   }
 }
 void indoorLightStatus() {
@@ -108,7 +138,7 @@ void indoorLightStatus() {
 }
 void indoorLightsOnOff() {
   if (inbytes[5] == '1') {
-    
+
     if (digitalRead(redPin) == HIGH) {
       Serial.print("260001");
     } else {
