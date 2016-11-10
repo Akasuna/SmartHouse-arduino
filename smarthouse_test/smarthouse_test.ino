@@ -19,6 +19,7 @@ int powerConsumption = A0;
 int powerOutage = 7;
 int alarmSiren = 12;
 int fan = 10;
+boolean burglerAlarmOn = false;
 
 int multiplexB5 = 13;
 int multiplexB4 = 12;
@@ -30,11 +31,19 @@ int multiplexB0 = 8;
 
 void setup() {
   // put your setup code here, to run once:
+  // INPUTS
   pinMode(stove, INPUT);
+  pinMode(alarm,INPUT);
+  pinMode(fire,INPUT);
+  //OUTPUTS
+  pinMode(alarmSiren,OUTPUT);
+  //OUTPUTS TO MULTIPLEX
   pinMode(multiplexB4, OUTPUT);
   pinMode(multiplexB5, OUTPUT);
   pinMode(multiplexB3, OUTPUT);
   pinMode(multiplexB0, OUTPUT);
+  
+  //Communication
   Serial.begin(9600);
   Xbee.begin(9600);
 
@@ -45,7 +54,8 @@ void loop() {
   //stoveStatus();
   readXbee();
   fireAlarm();
-
+  burglerAlarm()
+  
 }
 void readXbee() {
   if (Xbee.available()) {
@@ -68,6 +78,15 @@ void fireAlarm() {
     }
   } else {
     fireCount = false;
+  }
+}
+void burglerAlarm(){
+  if(burglerAlarmOn == true){
+    if(digitalRead(Alarm) == LOW){
+      Serial.print("160001");
+      
+    }
+     
   }
 }
 void indoorLightsOnOff() {
