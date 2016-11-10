@@ -89,6 +89,14 @@ void fireAlarm() {
       fireCount  = false;
   }
 }
+void readFireAlarm(){
+  if (digitalRead(fire) == HIGH) {
+    Serial.print("150001");
+
+  } else {
+    Serial.print("150000");
+  }
+}
 void burglerAlarm(){
   if(burglerAlarmOn == true && digitalRead(alarm) == LOW && burglerCount == false){
       Serial.print("160001");
@@ -100,6 +108,14 @@ void burglerAlarm(){
     burglerCount = false;
   }
 
+}
+void readBurglerAlarm(){
+  if (digitalRead(fire) == HIGH) {
+    Serial.print("160001");
+
+  } else {
+    Serial.print("160000");
+  }
 }
 void indoorLightsOnOff() {
   if (inbytes[5] == '1') {
@@ -191,20 +207,6 @@ if (inbytes[5] == '1') {
 
   }
 }
-void readFireAlarm(){
-  if (digitalRead(fire) == HIGH) {
-    Serial.print("150001");
 
-  } else {
-    Serial.print("150000");
-  }
-}
-void readBurglerAlarm(){
-  if (digitalRead(fire) == HIGH) {
-    Serial.print("160001");
 
-  } else {
-    Serial.print("160000");
-  }
-}
 
