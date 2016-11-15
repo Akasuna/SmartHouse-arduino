@@ -78,13 +78,13 @@ void fireAlarm() {
   
   delay(25);
   if (digitalRead(fire) == HIGH && fireCount == false) {
-      Serial.print("150001");
+      Serial.print("350001");
       multiplex(HIGH,LOW,LOW,LOW);
       fireCount  = true;
   } 
  
   else if(digitalRead(fire) == LOW && fireCount == true){
-      Serial.print("150000");
+      Serial.print("350000");
       multiplex(LOW,LOW,LOW,LOW);
       fireCount  = false;
   }
@@ -99,7 +99,7 @@ void readFireAlarm(){
 }
 void burglerAlarm(){
   if(burglerAlarmOn == true && digitalRead(alarm) == LOW && burglerCount == false){
-      Serial.print("160001");
+      Serial.print("360001");
       burglerCount = true;
       multiplex(LOW,LOW,HIGH,HIGH);
   } else if(burglerAlarmOn == true && digitalRead(alarm) == HIGH && burglerCount == true){
