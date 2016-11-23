@@ -57,6 +57,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   //stoveStatus();
+ 
   readXbee();
   fireAlarm();
   burglerAlarm();
@@ -69,7 +70,7 @@ void readXbee() {
     inbyte = Xbee.read();
     inbytes[count] = inbyte;
     count++;
-    if (count == 6) {
+    if (count >= 6) {
       count = 0;
       checkFirst5Byte();
     }
@@ -130,6 +131,14 @@ void indoorLightsOnOff() {
 
   }
 }
+void indoorLightStatus() {
+  //if (digitalRead(redPin) == HIGH) {
+    Serial.print("250001");
+  //} else {
+  //  Serial.print("250000");
+  //}
+}
+
 void multiplex(int b4,int b5,int b3,int b0){
   digitalWrite(multiplexB4, b4);
     digitalWrite(multiplexB5, b5);
@@ -144,7 +153,7 @@ void checkFirst5Byte() {
     // set Attic temp
   } else if (inbytes[0] == '1' && inbytes[1] == '2' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // REad room temp
-    readTemp(inTemp);
+    Serial.print("12"+ readTemp(atticTemp));
   } else if (inbytes[0] == '1' && inbytes[1] == '3' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // read outdoor temp
     readTemp(outTemp);
@@ -172,7 +181,7 @@ void checkFirst5Byte() {
     //read timer 2
   } else if (inbytes[0] == '2' && inbytes[1] == '5' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read light status
-    //indoorLightStatus();
+    indoorLightStatus();
   } else if (inbytes[0] == '2' && inbytes[1] == '6' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set indoorlight on off
     indoorLightsOnOff();
@@ -180,10 +189,14 @@ void checkFirst5Byte() {
     // set outdoorlight on off
    outdoorLightsOnOff();
   } else {
-    for (int i = 0; i < 6; i++) {
-      Serial.print(inbytes[i]);
-    }
-    Serial.print("detta skickade du ");
+    
+    count = 0;
+    
+    //for (int i = 0; i < 6; i++) {
+      //Serial.print(inbytes[i]);
+      //inbytes[i] = 0;
+    //}
+  //  Serial.print("detta skickade du ");
 
   }
 }
