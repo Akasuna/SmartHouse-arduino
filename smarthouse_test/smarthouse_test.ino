@@ -57,7 +57,6 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   //stoveStatus();
-  multiplex(HIGH,HIGH,LOW,LOW);
   readXbee();
   fireAlarm();
   burglerAlarm();
