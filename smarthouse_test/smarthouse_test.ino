@@ -104,7 +104,7 @@ void burglerAlarm(){
       burglerCount = true;
       multiplex(LOW,LOW,HIGH,HIGH);
   } else if(burglerAlarmOn == true && digitalRead(alarm) == HIGH && burglerCount == true){
-    Serial.print("160000");
+    Serial.print("360000");
     multiplex(HIGH,LOW,HIGH,HIGH);
     burglerCount = false;
   }
