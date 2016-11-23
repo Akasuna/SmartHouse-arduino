@@ -57,9 +57,11 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   //stoveStatus();
+  multiplex(HIGH,HIGH,LOW,LOW);
   readXbee();
   fireAlarm();
   burglerAlarm();
+  
   
 }
 void readXbee() {
@@ -138,7 +140,7 @@ void multiplex(int b4,int b5,int b3,int b0){
 void checkFirst5Byte() {
   if (inbytes[0] == '1' && inbytes[1] == '1' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // read Attic temp
-    readTemp(atticTemp);
+    Serial.print("11"+ readTemp(atticTemp));
   } else if (inbytes[0] == '1' && inbytes[1] == '1' && inbytes[2] == '1' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set Attic temp
   } else if (inbytes[0] == '1' && inbytes[1] == '2' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
@@ -195,9 +197,25 @@ void stoveStatus() {
     Serial.print("180000");
   }
 }
-void readTemp(int pin){// can be used for in room and attic
-  double Temp = (5.0 * analogRead(pin) * 100.0) / 1024;
-  Serial.println(Temp);
+String readTemp(int pin){// can be used for in room and attic
+  
+  String temp =String(analogRead(pin));
+  String tmp ="";
+  if(temp.length() == 1){
+    tmp = "000"+temp;
+  }else if(temp.length() == 2){
+    tmp = "00" +temp;
+  }else if(temp.length() == 3){
+    tmp = "0" +temp;
+  }else if(temp.length() == 4){
+    tmp = temp;
+  } else {
+    tmp = "xxxx";
+  }
+  
+  return tmp;
+  
+  
 }
 void outdoorLightsOnOff() {
 if (inbytes[5] == '1') {
