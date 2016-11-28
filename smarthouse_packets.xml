@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<data>
+  <loop>false</loop>
+  <repeat_times>1</repeat_times>
+  <repeat_period>500</repeat_period>
+  <packets_list>
+    <packet name="Read attic temprature">
+      <payload>313130303030</payload>
+    </packet>
+    <packet name="Set attic temprature">
+      <payload>313131303635</payload>
+    </packet>
+    <packet name="Read room temprature">
+      <payload>313230303030</payload>
+    </packet>
+    <packet name="Set room temprature">
+      <payload>313232303635</payload>
+    </packet>
+    <packet name="Read outdoor temprature">
+      <payload>313330303030</payload>
+    </packet>
+    <packet name="Read power consumption">
+      <payload>313430303030</payload>
+    </packet>
+    <packet name="Read fire alarm status">
+      <payload>313530303030</payload>
+    </packet>
+    <packet name="Read burglar alarm status">
+      <payload>313630303030</payload>
+    </packet>
+    <packet name="Read water leakage status">
+      <payload>313730303030</payload>
+    </packet>
+    <packet name="Read stove status">
+      <payload>313830303030</payload>
+    </packet>
+    <packet name="Read window status">
+      <payload>313930303030</payload>
+    </packet>
+    <packet name="Read power outage status">
+      <payload>3231303030300D</payload>
+    </packet>
+    <packet name="Read attic fan status">
+      <payload>323230303030</payload>
+    </packet>
+    <packet name="Read indoor light status">
+      <payload>323530303030</payload>
+    </packet>
+    <packet name="Set indoor light to on">
+      <payload>323630303031</payload>
+    </packet>
+    <packet name="Set indoor light to off">
+      <payload>323630303030</payload>
+    </packet>
+    <packet name="Read outdoor light status">
+      <payload>323730303030</payload>
+    </packet>
+  </packets_list>
+</data>
