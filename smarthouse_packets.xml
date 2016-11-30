@@ -9,7 +9,7 @@
       <payload>313130303030</payload>
     </packet>
     <packet name="Set attic temprature">
-      <payload>313131303635</payload>
+      <payload>313131303036</payload>
     </packet>
     <packet name="Read room temprature">
       <payload>313230303030</payload>

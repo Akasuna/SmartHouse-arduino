@@ -19,6 +19,7 @@ int powerConsumption = A0;
 int powerOutage = 7;
 int alarmSiren = 12;
 int fan = 10;
+boolean waterCount = false;
 boolean burglerAlarmOn = false;
 boolean burglerCount = false;
 double setInTemp = 20.00;
@@ -52,16 +53,23 @@ void setup() {
   fireCount = false;
   burglerCount = false;
   burglerAlarmOn = true;
+  waterCount = false;
+
+  //attic element off
+  multiplexB4  = HIGH;
+  multiplexB5 = HIGH;
+  multiplexB3 = LOW;
+  multiplexB0 = LOW;
 
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  //stoveStatus();
-  setTemp();
+
   readXbee();
   fireAlarm();
   burglerAlarm();
+  waterAlarm();
 
 
 }
@@ -112,6 +120,16 @@ void burglerAlarm() {
   }
 
 }
+void waterAlarm() {
+  if (digitalRead(water) == HIGH && waterCount == false) {
+    Serial.print("340001");
+    waterCount = true;
+  } else if (digitalRead(water) == LOW && waterCount == true) {
+    Serial.print("340000");
+    waterCount = false;
+  }
+
+}
 void readBurglerAlarm() {
   if (digitalRead(fire) == HIGH) {
     Serial.print("160001");
@@ -144,6 +162,7 @@ void checkFirst5Byte() {
     Serial.print("11000" + readTemp(atticTemp));
   } else if (inbytes[0] == '1' && inbytes[1] == '1' && inbytes[2] == '1' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set Attic temp
+    setTemp();
   } else if (inbytes[0] == '1' && inbytes[1] == '2' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // REad room temp
     Serial.print("12000" + readTemp(inTemp));
@@ -154,6 +173,7 @@ void checkFirst5Byte() {
     Serial.print("13000" + readTemp(outTemp));
   } else if (inbytes[0] == '1' && inbytes[1] == '4' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read power consumption
+    readPowerCon();
   } else if (inbytes[0] == '1' && inbytes[1] == '5' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read fire Alarm
     readFireAlarm();
@@ -166,6 +186,7 @@ void checkFirst5Byte() {
     stoveStatus();
   } else if (inbytes[0] == '1' && inbytes[1] == '9' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read windows status
+    windowStatus();
   } else if (inbytes[0] == '2' && inbytes[1] == '1' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read power outage status
   } else if (inbytes[0] == '2' && inbytes[1] == '2' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
@@ -191,9 +212,21 @@ void checkFirst5Byte() {
 
   }
 }
-double setTemp() {
-  double tmp = (inbytes[5] * 1000);
+void setTemp() {
+  String tmp1 = String(inbytes[5]);
+  Serial.print(tmp1);
 
+}
+void readPowerCon(){
+  Serial.print(analogRead(A0));
+}
+void windowStatus() {
+  if (digitalRead(window) == HIGH) {
+    Serial.print("190001");
+
+  } else {
+    Serial.print("190000");
+  }
 }
 void stoveStatus() {
   if (digitalRead(stove) == HIGH) {
@@ -217,10 +250,10 @@ String readTemp(int pin) { // can be used for in room and attic
     tmp = temp;
   } else {
     tmp = "xxxx";
+ 
   }
-
   return tmp;
-
+  
 
 }
 void outdoorLightsOnOff() {
