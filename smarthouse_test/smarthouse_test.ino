@@ -2,32 +2,41 @@
 
 SoftwareSerial Xbee(0, 1);
 
+
+// Digital pins
+
+int fire = 2;
+int alarm = 3;
+int water = 4;
+int stove = 5;
+int window = 6;
+int powerOutage = 7;
+int multiplexB0 = 8;
+int outTemp = 9;
+int fan = 10;
+int multiplexB3 = 11;
+int multiplexB4 = 12;
+int multiplexB5 = 13;
+
+// analog pins
+int powerConsumption = A0;
+int inTemp = A1;
+int atticTemp = A2;
+int ldr = A3;
+
+//variables
 char inbytes[6];
 int inbyte = 0;
 int count = 0;
 boolean fireCount = false;
-int fire = 2;
-int alarm = 3;
-int water = 4;
-int inTemp = A1;
-int atticTemp = A2;
-int ldr = A3;
-int outTemp = 9;
-int stove = 5;
-int window = 6;
-int powerConsumption = A0;
-int powerOutage = 7;
-int alarmSiren = 12;
-int fan = 10;
 boolean waterCount = false;
 boolean burglerAlarmOn = false;
 boolean burglerCount = false;
+boolean indoorOn = false;
+boolean outdoorOn = false;
 double setInTemp = 20.00;
 double setAtticTemp = 20.00;
-int multiplexB5 = 13;
-int multiplexB4 = 12;
-int multiplexB3 = 11;
-int multiplexB0 = 8;
+
 
 
 
@@ -49,6 +58,7 @@ void setup() {
   //Communication
   Serial.begin(9600);
   Xbee.begin(9600);
+  
   // variabler
   fireCount = false;
   burglerCount = false;
@@ -73,89 +83,22 @@ void loop() {
 
 
 }
+//-----------------------------------------------------------------------------Command Methodes-------------------------------------------------------------------
+
+// read from Xbee and out it in array inbytes
 void readXbee() {
   if (Xbee.available()) {
     //Läser in 10 skickade char i en array
     inbyte = Xbee.read();
     inbytes[count] = inbyte;
     count++;
-    if (count == 6) {
+    if (count == SizeOf(inbytes)) {
       count = 0;
       checkFirst5Byte();
     }
   }
 }
-void fireAlarm() {
-
-  delay(25);
-  if (digitalRead(fire) == HIGH && fireCount == false) {
-    Serial.print("350001");
-    multiplex(HIGH, LOW, LOW, LOW);
-    fireCount  = true;
-  }
-
-  else if (digitalRead(fire) == LOW && fireCount == true) {
-    Serial.print("350000");
-    multiplex(LOW, LOW, LOW, LOW);
-    fireCount  = false;
-  }
-}
-void readFireAlarm() {
-  if (digitalRead(fire) == HIGH) {
-    Serial.print("150001");
-
-  } else {
-    Serial.print("150000");
-  }
-}
-void burglerAlarm() {
-  if (burglerAlarmOn == true && digitalRead(alarm) == LOW && burglerCount == false) {
-    Serial.print("360001");
-    burglerCount = true;
-    multiplex(LOW, LOW, HIGH, HIGH);
-  } else if (burglerAlarmOn == true && digitalRead(alarm) == HIGH && burglerCount == true) {
-    Serial.print("360000");
-    multiplex(HIGH, LOW, HIGH, HIGH);
-    burglerCount = false;
-  }
-
-}
-void waterAlarm() {
-  if (digitalRead(water) == HIGH && waterCount == false) {
-    Serial.print("340001");
-    waterCount = true;
-  } else if (digitalRead(water) == LOW && waterCount == true) {
-    Serial.print("340000");
-    waterCount = false;
-  }
-
-}
-void readBurglerAlarm() {
-  if (digitalRead(fire) == HIGH) {
-    Serial.print("160001");
-
-  } else {
-    Serial.print("160000");
-  }
-}
-void indoorLightsOnOff() {
-  if (inbytes[5] == '1') {
-    multiplex(LOW, LOW, HIGH, LOW);
-  }
-  //put lights off
-  else if (inbytes[5] == '0') {
-    multiplex(HIGH, LOW, HIGH, LOW);
-  } else {
-    Serial.print("du vill tända/släcka lamporna inomhus men måste välja true or false");
-
-  }
-}
-void multiplex(int b4, int b5, int b3, int b0) {
-  digitalWrite(multiplexB4, b4);
-  digitalWrite(multiplexB5, b5);
-  digitalWrite(multiplexB3, b3);
-  digitalWrite(multiplexB0, b0);
-}
+//read the first 5 bytes in array inbytes
 void checkFirst5Byte() {
   if (inbytes[0] == '1' && inbytes[1] == '1' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // read Attic temp
@@ -197,7 +140,7 @@ void checkFirst5Byte() {
     //read timer 2
   } else if (inbytes[0] == '2' && inbytes[1] == '5' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read light status
-    //indoorLightStatus();
+    indoorLightStatus();
   } else if (inbytes[0] == '2' && inbytes[1] == '6' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set indoorlight on off
     indoorLightsOnOff();
@@ -212,10 +155,71 @@ void checkFirst5Byte() {
 
   }
 }
-void setTemp() {
-  String tmp1 = String(inbytes[5]);
-  Serial.print(tmp1);
+void multiplex(int b4, int b5, int b3, int b0) {
+  digitalWrite(multiplexB4, b4);
+  digitalWrite(multiplexB5, b5);
+  digitalWrite(multiplexB3, b3);
+  digitalWrite(multiplexB0, b0);
+}
 
+//-----------------------------------------------------------Alarm Methods----------------------------------------------------------
+
+//sent a alarm when the house are on fire
+void waterAlarm() {
+  if (digitalRead(water) == HIGH && waterCount == false) {
+    Serial.print("340001");
+    waterCount = true;
+  } else if (digitalRead(water) == LOW && waterCount == true) {
+    Serial.print("340000");
+    waterCount = false;
+  }
+
+}
+void fireAlarm() {
+
+  delay(25);
+  if (digitalRead(fire) == HIGH && fireCount == false) {
+    Serial.print("350001");
+    multiplex(HIGH, LOW, LOW, LOW);
+    fireCount  = true;
+  }
+
+  else if (digitalRead(fire) == LOW && fireCount == true) {
+    Serial.print("350000");
+    multiplex(LOW, LOW, LOW, LOW);
+    fireCount  = false;
+  }
+}
+void burglerAlarm() {
+  if (burglerAlarmOn == true && digitalRead(alarm) == LOW && burglerCount == false) {
+    Serial.print("360001");
+    burglerCount = true;
+    multiplex(LOW, LOW, HIGH, HIGH);
+  } else if (burglerAlarmOn == true && digitalRead(alarm) == HIGH && burglerCount == true) {
+    Serial.print("360000");
+    multiplex(HIGH, LOW, HIGH, HIGH);
+    burglerCount = false;
+  }
+
+}
+
+//----------------------------------------------------Read Methods-------------------------------------------------------
+void readFireAlarm() {
+  if (digitalRead(fire) == HIGH) {
+    Serial.print("150001");
+
+  } else {
+    Serial.print("150000");
+  }
+}
+
+void readBurglerAlarm() {
+  if (digitalRead(fire) == HIGH) {
+    Serial.print("160001");
+
+  } else {
+    Serial.print("160000");
+  }
 }
 void readPowerCon(){
   Serial.print(analogRead(A0));
@@ -236,6 +240,7 @@ void stoveStatus() {
     Serial.print("180000");
   }
 }
+
 String readTemp(int pin) { // can be used for in room and attic
 
   String temp = String(analogRead(pin));
@@ -253,21 +258,63 @@ String readTemp(int pin) { // can be used for in room and attic
  
   }
   return tmp;
-  
-
 }
+
+void indoorLightStatus(){
+if (indoorOn == true) {
+    Serial.print("250001");
+
+  } else {
+    Serial.print("250000");
+  }
+}  
+
+void outdoorLightStatus(){
+if (outdoorOn == true) {
+    Serial.print("180001");
+
+  } else {
+    Serial.print("180000");
+  }
+}
+//-----------------------------------------------------Set Methods-----------------------------------------------------
+void indoorLightsOnOff() {
+  if (inbytes[5] == '1') {
+    multiplex(LOW, LOW, HIGH, LOW);
+    indoorOn = true;
+  }
+  //put lights off
+  else if (inbytes[5] == '0') {
+    multiplex(HIGH, LOW, HIGH, LOW);
+    indoorOn = false;
+  } else {
+    Serial.print("du vill tända/släcka lamporna inomhus men måste välja on or off");
+
+  }
+}
+
 void outdoorLightsOnOff() {
   if (inbytes[5] == '1') {
     multiplex(LOW, HIGH, HIGH, HIGH);
+    outdoorOn = true;
   }
   //put lights off
   else if (inbytes[5] == '0') {
     multiplex(HIGH, HIGH, HIGH, HIGH);
+    outdoorOn = false;
   } else {
-    Serial.print("du vill tända/släcka lamporna inomhus men måste välja true or false");
+    Serial.print("du vill tända/släcka lamporna inomhus men måste välja on or off");
 
   }
 }
+
+void setTemp() {
+  String tmp1 = String(inbytes[5]);
+  Serial.print(tmp1);
+
+}
+
+
 
 
 
