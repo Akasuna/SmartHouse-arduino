@@ -147,7 +147,7 @@ void checkFirst5Byte() {
   } else if (inbytes[0] == '1' && inbytes[1] == '2' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // REad room temp
     Serial.print("12000" + readTemp(inTemp));
-  }else if (inbytes[0] == '1' && inbytes[1] == 21' && inbytes[2] == '2' && inbytes[3] == '0' && inbytes[4] == '0') {
+  }else if (inbytes[0] == '1' && inbytes[1] == '2' && inbytes[2] == '2' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set room temp
   } else if (inbytes[0] == '1' && inbytes[1] == '3' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // read outdoor temp
