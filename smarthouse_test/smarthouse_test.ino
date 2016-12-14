@@ -58,7 +58,7 @@ void setup() {
   //Communication
   Serial.begin(9600);
   Xbee.begin(9600);
-  
+
   // variabler
   fireCount = false;
   burglerCount = false;
@@ -100,54 +100,69 @@ void readXbee() {
 }
 //read the first 5 bytes in array inbytes
 void checkFirst5Byte() {
+  //---------------------------------------------------------Read Commands------------------------------------------------------------------------------
   if (inbytes[0] == '1' && inbytes[1] == '1' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // read Attic temp
     Serial.print("11000" + readTemp(atticTemp));
-  } else if (inbytes[0] == '1' && inbytes[1] == '1' && inbytes[2] == '1' && inbytes[3] == '0' && inbytes[4] == '0') {
-    // set Attic temp
-    setTemp();
-  } else if (inbytes[0] == '1' && inbytes[1] == '2' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
+  }
+  else if (inbytes[0] == '1' && inbytes[1] == '2' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // REad room temp
     Serial.print("12000" + readTemp(inTemp));
-  }else if (inbytes[0] == '1' && inbytes[1] == '2' && inbytes[2] == '2' && inbytes[3] == '0' && inbytes[4] == '0') {
-    // set room temp
-  } else if (inbytes[0] == '1' && inbytes[1] == '3' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
+  }
+  else if (inbytes[0] == '1' && inbytes[1] == '3' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // read outdoor temp
     Serial.print("13000" + readTemp(outTemp));
-  } else if (inbytes[0] == '1' && inbytes[1] == '4' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
+  }
+  else if (inbytes[0] == '1' && inbytes[1] == '4' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read power consumption
     readPowerCon();
-  } else if (inbytes[0] == '1' && inbytes[1] == '5' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
+  }
+  else if (inbytes[0] == '1' && inbytes[1] == '5' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read fire Alarm
     readFireAlarm();
-  } else if (inbytes[0] == '1' && inbytes[1] == '6' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
+  }
+  else if (inbytes[0] == '1' && inbytes[1] == '6' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read burgler alarm
     readBurglerAlarm();
-  } else if (inbytes[0] == '1' && inbytes[1] == '7' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
+  }
+  else if (inbytes[0] == '1' && inbytes[1] == '7' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read water leakage ta bort men säg till carl först
-  } else if (inbytes[0] == '1' && inbytes[1] == '8' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
+  }
+  else if (inbytes[0] == '1' && inbytes[1] == '8' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     stoveStatus();
-  } else if (inbytes[0] == '1' && inbytes[1] == '9' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
+  } 
+  else if (inbytes[0] == '1' && inbytes[1] == '9' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read windows status
     windowStatus();
-  } else if (inbytes[0] == '2' && inbytes[1] == '1' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
-    //read power outage status
-  } else if (inbytes[0] == '2' && inbytes[1] == '2' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
-    //read attic fan
-  } else if (inbytes[0] == '2' && inbytes[1] == '3' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
-    //read timer 1
-  } else if (inbytes[0] == '2' && inbytes[1] == '4' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
-    //read timer 2
-  } else if (inbytes[0] == '2' && inbytes[1] == '5' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
+  } 
+  else if (inbytes[0] == '2' && inbytes[1] == '1' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
+    //read power outage status skall vara ett alarm
+  }
+  else if (inbytes[0] == '2' && inbytes[1] == '5' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read indoorlight status
     indoorLightStatus();
-  } else if (inbytes[0] == '2' && inbytes[1] == '6' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
+  }
+  else if (inbytes[0] == '2' && inbytes[1] == '2' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
+    //read attic fan
+  }
+  //---------------------------------------------------------Set Command--------------------------------------------------------------------------------
+
+  else if (inbytes[0] == '1' && inbytes[1] == '1' && inbytes[2] == '1' && inbytes[3] == '0' && inbytes[4] == '0') {
+    // set Attic temp
+    setTemp();
+  }
+  else if (inbytes[0] == '1' && inbytes[1] == '2' && inbytes[2] == '2' && inbytes[3] == '0' && inbytes[4] == '0') {
+    // set room temp
+  }
+  else if (inbytes[0] == '2' && inbytes[1] == '6' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set indoorlight on off
     indoorLightsOnOff();
-  } else if (inbytes[0] == '2' && inbytes[1] == '7' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
+  } 
+  else if (inbytes[0] == '2' && inbytes[1] == '7' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set outdoorlight on off
     outdoorLightsOnOff();
-  } else {
+  } 
+  else {
     for (int i = 0; i < 6; i++) {
       Serial.print(inbytes[i]);
     }
@@ -221,7 +236,7 @@ void readBurglerAlarm() {
     Serial.print("160000");
   }
 }
-void readPowerCon(){
+void readPowerCon() {
   Serial.print(analogRead(A0));
 }
 void windowStatus() {
@@ -255,22 +270,22 @@ String readTemp(int pin) { // can be used for in room and attic
     tmp = temp;
   } else {
     tmp = "xxxx";
- 
+
   }
   return tmp;
 }
 
-void indoorLightStatus(){
-if (indoorOn == true) {
+void indoorLightStatus() {
+  if ( == true) {
     Serial.print("250001");
 
   } else {
     Serial.print("250000");
   }
-}  
+}
 
-void outdoorLightStatus(){
-if (outdoorOn == true) {
+void outdoorLightStatus() {
+  if (outdoorOn == true) {
     Serial.print("180001");
 
   } else {
