@@ -20,12 +20,12 @@ int multiplexB5 = 13;
 
 // analog pins
 int powerConsumption = A0;
-int inTemp = A1;
-int atticTemp = A2;
+int inTempPin = A1;
+int atticTempPin = A2;
 int ldr = A3;
 
 //variables
-char inbytes[6];
+char inbytes[9];
 int inbyte = 0;
 int count = 0;
 boolean fireCount = false;
@@ -34,8 +34,8 @@ boolean burglerAlarmOn = false;
 boolean burglerCount = false;
 boolean indoorOn = false;
 boolean outdoorOn = false;
-double setInTemp = 20.00;
-double setAtticTemp = 20.00;
+int inTemp = 20.00;
+int atticTemp = 20.00;
 
 
 
@@ -47,8 +47,7 @@ void setup() {
   pinMode(stove, INPUT);
   pinMode(alarm, INPUT);
   pinMode(fire, INPUT);
-  //OUTPUTS
-  pinMode(alarmSiren, OUTPUT);
+  
   //OUTPUTS TO MULTIPLEX
   pinMode(multiplexB4, OUTPUT);
   pinMode(multiplexB5, OUTPUT);
@@ -80,7 +79,7 @@ void loop() {
   fireAlarm();
   burglerAlarm();
   waterAlarm();
-
+  checkTemp();
 
 }
 //-----------------------------------------------------------------------------Command Methodes-------------------------------------------------------------------
@@ -88,11 +87,11 @@ void loop() {
 // read from Xbee and out it in array inbytes
 void readXbee() {
   if (Xbee.available()) {
-    //Läser in 10 skickade char i en array
+    //Läser in 9 skickade char i en array
     inbyte = Xbee.read();
     inbytes[count] = inbyte;
     count++;
-    if (count == SizeOf(inbytes)) {
+    if (count == sizeof(inbytes)) {
       count = 0;
       checkFirst5Byte();
     }
@@ -103,11 +102,11 @@ void checkFirst5Byte() {
   //---------------------------------------------------------Read Commands------------------------------------------------------------------------------
   if (inbytes[0] == '1' && inbytes[1] == '1' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // read Attic temp
-    Serial.print("11000" + readTemp(atticTemp));
+    Serial.print("11000" + readTemp(atticTempPin));
   }
   else if (inbytes[0] == '1' && inbytes[1] == '2' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // REad room temp
-    Serial.print("12000" + readTemp(inTemp));
+    Serial.print("12000" + readTemp(inTempPin));
   }
   else if (inbytes[0] == '1' && inbytes[1] == '3' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // read outdoor temp
@@ -130,11 +129,11 @@ void checkFirst5Byte() {
   }
   else if (inbytes[0] == '1' && inbytes[1] == '8' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     stoveStatus();
-  } 
+  }
   else if (inbytes[0] == '1' && inbytes[1] == '9' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read windows status
     windowStatus();
-  } 
+  }
   else if (inbytes[0] == '2' && inbytes[1] == '1' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read power outage status skall vara ett alarm
   }
@@ -149,19 +148,20 @@ void checkFirst5Byte() {
 
   else if (inbytes[0] == '1' && inbytes[1] == '1' && inbytes[2] == '1' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set Attic temp
-    setTemp();
+    setAtticTemp();
   }
   else if (inbytes[0] == '1' && inbytes[1] == '2' && inbytes[2] == '2' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set room temp
+    setInTemp();
   }
   else if (inbytes[0] == '2' && inbytes[1] == '6' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set indoorlight on off
     indoorLightsOnOff();
-  } 
+  }
   else if (inbytes[0] == '2' && inbytes[1] == '7' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set outdoorlight on off
     outdoorLightsOnOff();
-  } 
+  }
   else {
     for (int i = 0; i < 6; i++) {
       Serial.print(inbytes[i]);
@@ -182,36 +182,35 @@ void multiplex(int b4, int b5, int b3, int b0) {
 //sent a alarm when the house are on fire
 void waterAlarm() {
   if (digitalRead(water) == HIGH && waterCount == false) {
-    Serial.print("340001");
+    Serial.print("340000001");
     waterCount = true;
   } else if (digitalRead(water) == LOW && waterCount == true) {
-    Serial.print("340000");
+    Serial.print("340000000");
     waterCount = false;
   }
 
 }
 void fireAlarm() {
-
   delay(25);
   if (digitalRead(fire) == HIGH && fireCount == false) {
-    Serial.print("350001");
+    Serial.print("350000001");
     multiplex(HIGH, LOW, LOW, LOW);
     fireCount  = true;
   }
 
   else if (digitalRead(fire) == LOW && fireCount == true) {
-    Serial.print("350000");
+    Serial.print("350000000");
     multiplex(LOW, LOW, LOW, LOW);
     fireCount  = false;
   }
 }
 void burglerAlarm() {
   if (burglerAlarmOn == true && digitalRead(alarm) == LOW && burglerCount == false) {
-    Serial.print("360001");
+    Serial.print("360000001");
     burglerCount = true;
     multiplex(LOW, LOW, HIGH, HIGH);
   } else if (burglerAlarmOn == true && digitalRead(alarm) == HIGH && burglerCount == true) {
-    Serial.print("360000");
+    Serial.print("360000000");
     multiplex(HIGH, LOW, HIGH, HIGH);
     burglerCount = false;
   }
@@ -221,19 +220,19 @@ void burglerAlarm() {
 //----------------------------------------------------Read Methods-------------------------------------------------------
 void readFireAlarm() {
   if (digitalRead(fire) == HIGH) {
-    Serial.print("150001");
+    Serial.print("150000001");
 
   } else {
-    Serial.print("150000");
+    Serial.print("150000000");
   }
 }
 
 void readBurglerAlarm() {
   if (digitalRead(fire) == HIGH) {
-    Serial.print("160001");
+    Serial.print("160000001");
 
   } else {
-    Serial.print("160000");
+    Serial.print("160000000");
   }
 }
 void readPowerCon() {
@@ -241,18 +240,18 @@ void readPowerCon() {
 }
 void windowStatus() {
   if (digitalRead(window) == HIGH) {
-    Serial.print("190001");
+    Serial.print("190000001");
 
   } else {
-    Serial.print("190000");
+    Serial.print("190000000");
   }
 }
 void stoveStatus() {
   if (digitalRead(stove) == HIGH) {
-    Serial.print("180001");
+    Serial.print("180000001");
 
   } else {
-    Serial.print("180000");
+    Serial.print("180000000");
   }
 }
 
@@ -276,32 +275,34 @@ String readTemp(int pin) { // can be used for in room and attic
 }
 
 void indoorLightStatus() {
-  if ( == true) {
-    Serial.print("250001");
+  if (indoorOn == true) {
+    Serial.print("250000001");
 
   } else {
-    Serial.print("250000");
+    Serial.print("250000000");
   }
 }
 
 void outdoorLightStatus() {
   if (outdoorOn == true) {
-    Serial.print("180001");
+    Serial.print("180000001");
 
   } else {
-    Serial.print("180000");
+    Serial.print("180000000");
   }
 }
 //-----------------------------------------------------Set Methods-----------------------------------------------------
 void indoorLightsOnOff() {
-  if (inbytes[5] == '1') {
+  if (inbytes[8] == '1') {
     multiplex(LOW, LOW, HIGH, LOW);
     indoorOn = true;
+    indoorLightStatus();
   }
   //put lights off
-  else if (inbytes[5] == '0') {
+  else if (inbytes[8] == '0') {
     multiplex(HIGH, LOW, HIGH, LOW);
     indoorOn = false;
+    indoorLightStatus();
   } else {
     Serial.print("du vill tända/släcka lamporna inomhus men måste välja on or off");
 
@@ -309,24 +310,51 @@ void indoorLightsOnOff() {
 }
 
 void outdoorLightsOnOff() {
-  if (inbytes[5] == '1') {
+  if (inbytes[8] == '1') {
     multiplex(LOW, HIGH, HIGH, HIGH);
     outdoorOn = true;
+    outdoorLightStatus();
   }
   //put lights off
-  else if (inbytes[5] == '0') {
+  else if (inbytes[8] == '0') {
     multiplex(HIGH, HIGH, HIGH, HIGH);
     outdoorOn = false;
+    outdoorLightStatus();
   } else {
     Serial.print("du vill tända/släcka lamporna inomhus men måste välja on or off");
 
   }
 }
 
-void setTemp() {
-  String tmp1 = String(inbytes[5]);
-  Serial.print(tmp1);
+void setAtticTemp() {
+  String ReadTemp = String(inbytes[5])+String(inbytes[6])+String(inbytes[7])+String(inbytes[8]);
+  int tempToInt = ReadTemp.toInt();
+  atticTemp = tempToInt;
+  Serial.print(tempToInt);
 
+}
+void setInTemp() {
+  String ReadTemp = String(inbytes[5])+String(inbytes[6])+String(inbytes[7])+String(inbytes[8]);
+  int tempToInt = ReadTemp.toInt();
+  inTemp = tempToInt;
+  Serial.print(tempToInt);
+
+}
+//--------------------------------------------------------------check temp and put on off element----------------------------------------------------------------------------
+
+void checkTemp() {
+  double currentRoomTemp = analogRead(A1);
+  double currentAtticTemp = analogRead(A2);
+  if (currentAtticTemp <= atticTemp) {
+    multiplex(LOW, HIGH, LOW, LOW);
+  } else {
+    multiplex(HIGH, HIGH, LOW, LOW);
+  }
+  if (currentRoomTemp <= inTemp) {
+    multiplex(LOW, HIGH, LOW, HIGH);
+  } else {
+    multiplex(HIGH, HIGH, LOW, HIGH);
+  }
 }
 
 
