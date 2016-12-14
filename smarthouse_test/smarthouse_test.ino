@@ -124,7 +124,7 @@ void checkFirst5Byte() {
     //read burgler alarm
     readBurglerAlarm();
   } else if (inbytes[0] == '1' && inbytes[1] == '7' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
-    //read water leakage
+    //read water leakage ta bort men säg till carl först
   } else if (inbytes[0] == '1' && inbytes[1] == '8' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     stoveStatus();
   } else if (inbytes[0] == '1' && inbytes[1] == '9' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
@@ -139,7 +139,7 @@ void checkFirst5Byte() {
   } else if (inbytes[0] == '2' && inbytes[1] == '4' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read timer 2
   } else if (inbytes[0] == '2' && inbytes[1] == '5' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
-    //read light status
+    //read indoorlight status
     indoorLightStatus();
   } else if (inbytes[0] == '2' && inbytes[1] == '6' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set indoorlight on off
