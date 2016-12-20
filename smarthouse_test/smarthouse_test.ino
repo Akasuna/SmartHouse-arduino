@@ -20,7 +20,7 @@ int multiplexB5 = 13;
 
 // analog pins
 int powerConsumption = A0;
-int inTempPin = A0;
+int inTempPin = A1;
 int atticTempPin = A2;
 int ldr = A3;
 
@@ -345,10 +345,12 @@ void setBurglerAlarm() {
   //put Burgler alarm on
   if (inbytes[8] == '1') {
     burglerAlarmOn = true;
+    readBurglerAlarm();
   }
   //put Burgler alarm off
   else if (inbytes[8] == '0') {
     burglerAlarmOn = false;
+    readBurglerAlarm();
   } else {
     Serial.print("du vill tända/släcka lamporna inomhus men måste välja on or off");
 
