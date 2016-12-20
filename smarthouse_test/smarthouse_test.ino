@@ -20,7 +20,7 @@ int multiplexB5 = 13;
 
 // analog pins
 int powerConsumption = A0;
-int inTempPin = A1;
+int inTempPin = A0;
 int atticTempPin = A2;
 int ldr = A3;
 
@@ -47,7 +47,9 @@ void setup() {
   pinMode(stove, INPUT);
   pinMode(alarm, INPUT);
   pinMode(fire, INPUT);
-  
+  pinMode(window, INPUT);
+  //OUTPUTS
+  pinMode(fan, OUTPUT);
   //OUTPUTS TO MULTIPLEX
   pinMode(multiplexB4, OUTPUT);
   pinMode(multiplexB5, OUTPUT);
@@ -81,11 +83,13 @@ void loop() {
   waterAlarm();
   checkTemp();
 
+
 }
 //-----------------------------------------------------------------------------Command Methodes-------------------------------------------------------------------
 
 // read from Xbee and out it in array inbytes
 void readXbee() {
+
   if (Xbee.available()) {
     //Läser in 9 skickade char i en array
     inbyte = Xbee.read();
@@ -124,7 +128,7 @@ void checkFirst5Byte() {
     //read burgler alarm
     readBurglerAlarm();
   }
-  
+
   else if (inbytes[0] == '1' && inbytes[1] == '8' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     stoveStatus();
   }
@@ -139,7 +143,7 @@ void checkFirst5Byte() {
   else if (inbytes[0] == '2' && inbytes[1] == '2' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read attic fan
     fanStatus();
-  }else if (inbytes[0] == '2' && inbytes[1] == '7' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
+  } else if (inbytes[0] == '2' && inbytes[1] == '7' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read outdoorlight status
     indoorLightStatus();
   }
@@ -151,11 +155,15 @@ void checkFirst5Byte() {
   }
   else if (inbytes[0] == '1' && inbytes[1] == '7' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //set burgler alarm
-   setBurglerAlarm();
+    setBurglerAlarm();
   }
   else if (inbytes[0] == '1' && inbytes[1] == '2' && inbytes[2] == '2' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set room temp
     setInTemp();
+  }
+  else if (inbytes[0] == '2' && inbytes[1] == '3' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
+    // set indoorlight on off
+    setAtticFanOnOff();
   }
   else if (inbytes[0] == '2' && inbytes[1] == '6' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set indoorlight on off
@@ -261,7 +269,7 @@ void fanStatus() {
   if (digitalRead(fan) == HIGH) {
     Serial.print("220000001");
 
-  } else {
+  } else if(digitalRead(fan) == LOW) {
     Serial.print("220000000");
   }
 }
@@ -296,10 +304,10 @@ void indoorLightStatus() {
 
 void outdoorLightStatus() {
   if (outdoorOn == true) {
-    Serial.print("180000001");
+    Serial.print("270000001");
 
   } else {
-    Serial.print("180000000");
+    Serial.print("270000000");
   }
 }
 //-----------------------------------------------------Set Methods-----------------------------------------------------
@@ -319,7 +327,21 @@ void indoorLightsOnOff() {
 
   }
 }
-void setBurglerAlarm(){
+void setAtticFanOnOff() {
+  if (inbytes[8] == '1') {
+    digitalWrite(fan, HIGH);
+    fanStatus();
+  }
+  //put lights off
+  else if (inbytes[8] == '0') {
+    digitalWrite(fan, LOW);
+    fanStatus();
+  } else {
+    Serial.print("du vill tända/släcka lamporna inomhus men måste välja on or off");
+
+  }
+}
+void setBurglerAlarm() {
   //put Burgler alarm on
   if (inbytes[8] == '1') {
     burglerAlarmOn = true;
@@ -351,14 +373,14 @@ void outdoorLightsOnOff() {
 }
 
 void setAtticTemp() {
-  String ReadTemp = String(inbytes[5])+String(inbytes[6])+String(inbytes[7])+String(inbytes[8]);
+  String ReadTemp = String(inbytes[5]) + String(inbytes[6]) + String(inbytes[7]) + String(inbytes[8]);
   int tempToInt = ReadTemp.toInt();
   atticTemp = tempToInt;
   Serial.print(tempToInt);
 
 }
 void setInTemp() {
-  String ReadTemp = String(inbytes[5])+String(inbytes[6])+String(inbytes[7])+String(inbytes[8]);
+  String ReadTemp = String(inbytes[5]) + String(inbytes[6]) + String(inbytes[7]) + String(inbytes[8]);
   int tempToInt = ReadTemp.toInt();
   inTemp = tempToInt;
   Serial.print(tempToInt);
