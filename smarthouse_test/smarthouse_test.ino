@@ -124,9 +124,7 @@ void checkFirst5Byte() {
     //read burgler alarm
     readBurglerAlarm();
   }
-  else if (inbytes[0] == '1' && inbytes[1] == '7' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
-    //read water leakage ta bort men säg till carl först
-  }
+  
   else if (inbytes[0] == '1' && inbytes[1] == '8' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     stoveStatus();
   }
@@ -134,21 +132,26 @@ void checkFirst5Byte() {
     //read windows status
     windowStatus();
   }
-  else if (inbytes[0] == '2' && inbytes[1] == '1' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
-    //read power outage status skall vara ett alarm
-  }
   else if (inbytes[0] == '2' && inbytes[1] == '5' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read indoorlight status
     indoorLightStatus();
   }
   else if (inbytes[0] == '2' && inbytes[1] == '2' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read attic fan
+    fanStatus();
+  }else if (inbytes[0] == '2' && inbytes[1] == '7' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
+    //read outdoorlight status
+    indoorLightStatus();
   }
   //---------------------------------------------------------Set Command--------------------------------------------------------------------------------
 
   else if (inbytes[0] == '1' && inbytes[1] == '1' && inbytes[2] == '1' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set Attic temp
     setAtticTemp();
+  }
+  else if (inbytes[0] == '1' && inbytes[1] == '7' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
+    //set burgler alarm
+   setBurglerAlarm();
   }
   else if (inbytes[0] == '1' && inbytes[1] == '2' && inbytes[2] == '2' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set room temp
@@ -158,7 +161,7 @@ void checkFirst5Byte() {
     // set indoorlight on off
     indoorLightsOnOff();
   }
-  else if (inbytes[0] == '2' && inbytes[1] == '7' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
+  else if (inbytes[0] == '2' && inbytes[1] == '8' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // set outdoorlight on off
     outdoorLightsOnOff();
   }
@@ -209,7 +212,7 @@ void burglerAlarm() {
     Serial.print("360000001");
     burglerCount = true;
     multiplex(LOW, LOW, HIGH, HIGH);
-  } else if (burglerAlarmOn == true && digitalRead(alarm) == HIGH && burglerCount == true) {
+  } else if (burglerAlarmOn == false && digitalRead(alarm) == HIGH && burglerCount == true) {
     Serial.print("360000000");
     multiplex(HIGH, LOW, HIGH, HIGH);
     burglerCount = false;
@@ -228,7 +231,7 @@ void readFireAlarm() {
 }
 
 void readBurglerAlarm() {
-  if (digitalRead(fire) == HIGH) {
+  if (digitalRead(alarm) == HIGH) {
     Serial.print("160000001");
 
   } else {
@@ -252,6 +255,14 @@ void stoveStatus() {
 
   } else {
     Serial.print("180000000");
+  }
+}
+void fanStatus() {
+  if (digitalRead(fan) == HIGH) {
+    Serial.print("220000001");
+
+  } else {
+    Serial.print("220000000");
   }
 }
 
@@ -303,6 +314,19 @@ void indoorLightsOnOff() {
     multiplex(HIGH, LOW, HIGH, LOW);
     indoorOn = false;
     indoorLightStatus();
+  } else {
+    Serial.print("du vill tända/släcka lamporna inomhus men måste välja on or off");
+
+  }
+}
+void setBurglerAlarm(){
+  //put Burgler alarm on
+  if (inbytes[8] == '1') {
+    burglerAlarmOn = true;
+  }
+  //put Burgler alarm off
+  else if (inbytes[8] == '0') {
+    burglerAlarmOn = false;
   } else {
     Serial.print("du vill tända/släcka lamporna inomhus men måste välja on or off");
 
