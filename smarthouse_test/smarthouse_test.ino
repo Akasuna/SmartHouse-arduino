@@ -145,7 +145,7 @@ void checkFirst5Byte() {
     fanStatus();
   } else if (inbytes[0] == '2' && inbytes[1] == '7' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read outdoorlight status
-    indoorLightStatus();
+    outdoorLightStatus();
   }
   //---------------------------------------------------------Set Command--------------------------------------------------------------------------------
 
