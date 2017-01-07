@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<data>
+  <loop>false</loop>
+  <repeat_times>1</repeat_times>
+  <repeat_period>500</repeat_period>
+  <packets_list>
+    <packet name="SetIndoorLightOn">
+      <payload>323630303030303031</payload>
+    </packet>
+    <packet name="CheckTemp">
+      <payload>313230303030303030</payload>
+    </packet>
+    <packet name="CheckIndoorLight">
+      <payload>323530303030303030</payload>
+    </packet>
+    <packet name="SetIndoorLightOff">
+      <payload>323630303030303030</payload>
+    </packet>
+    <packet name="CheckIndoorLight2">
+      <payload>323530303030303030</payload>
+    </packet>
+    <packet name="SetTemp">
+      <payload>313232303030303530</payload>
+    </packet>
+  </packets_list>
+</data>

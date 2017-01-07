@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<data>
+  <loop>false</loop>
+  <repeat_times>1</repeat_times>
+  <repeat_period>500</repeat_period>
+  <packets_list>
+    <packet name="SetIndoorLightOn">
+      <payload>323630303030303031</payload>
+    </packet>
+    <packet name="ReadIndoorLight">
+      <payload>323530303030303030</payload>
+    </packet>
+    <packet name="SetIndoorLoghtOff">
+      <payload>323630303030303030</payload>
+    </packet>
+    <packet name="SetBurglarON">
+      <payload>313730303030303031</payload>
+    </packet>
+    <packet name="SetOutdoorLightOn">
+      <payload>323830303030303031</payload>
+    </packet>
+    <packet name="CheckStove">
+      <payload>313830303030303030</payload>
+    </packet>
+    <packet name="CheckWindow">
+      <payload>313930303030303030</payload>
+    </packet>
+    <packet name="SetBurglarOFF">
+      <payload>313730303030303030</payload>
+    </packet>
+  </packets_list>
+</data>
