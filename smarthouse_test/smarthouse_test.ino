@@ -245,7 +245,7 @@ void readFireAlarm() {
 }
 
 void readBurglerAlarm() {
-  if (digitalRead(alarm) == HIGH) {
+  if (burglerAlarmOn == true) {
     Serial.print("160000001");
 
   } else {
