@@ -34,6 +34,8 @@ boolean burglerAlarmOn = false;
 boolean burglerCount = false;
 boolean indoorOn = false;
 boolean outdoorOn = false;
+boolean atticHeat = false;
+boolean roomHeat = false;
 int inTemp = 20.00;
 int atticTemp = 20.00;
 
@@ -67,10 +69,10 @@ void setup() {
   waterCount = false;
 
   //attic element off
-  multiplexB4  = HIGH;
-  multiplexB5 = HIGH;
-  multiplexB3 = LOW;
-  multiplexB0 = LOW;
+  //multiplexB4  = HIGH;
+  //multiplexB5 = HIGH;
+  //multiplexB3 = LOW;
+  //multiplexB0 = LOW;
 
 }
 
@@ -107,14 +109,17 @@ void checkFirst5Byte() {
   if (inbytes[0] == '1' && inbytes[1] == '1' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // read Attic temp
     Serial.print("11000" + readTemp(atticTempPin));
+    //Serial.print("110000300");
   }
   else if (inbytes[0] == '1' && inbytes[1] == '2' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // REad room temp
     Serial.print("12000" + readTemp(inTempPin));
+    //Serial.print("120000300");
   }
   else if (inbytes[0] == '1' && inbytes[1] == '3' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     // read outdoor temp
     Serial.print("13000" + readTemp(outTemp));
+    //Serial.print("130000300");
   }
   else if (inbytes[0] == '1' && inbytes[1] == '4' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read power consumption
@@ -182,6 +187,7 @@ void checkFirst5Byte() {
   }
 }
 void multiplex(int b4, int b5, int b3, int b0) {
+  //Serial.print("hejeh");
   digitalWrite(multiplexB4, b4);
   digitalWrite(multiplexB5, b5);
   digitalWrite(multiplexB3, b3);
@@ -393,15 +399,21 @@ void setInTemp() {
 void checkTemp() {
   double currentRoomTemp = analogRead(A1);
   double currentAtticTemp = analogRead(A2);
-  if (currentAtticTemp <= atticTemp) {
+  if (currentAtticTemp <= atticTemp && !atticHeat) {
     multiplex(LOW, HIGH, LOW, LOW);
-  } else {
+    atticHeat = true; 
+  } 
+  else if(currentAtticTemp >= atticTemp && atticHeat) {
     multiplex(HIGH, HIGH, LOW, LOW);
+    atticHeat = false;
   }
-  if (currentRoomTemp <= inTemp) {
+  if (currentRoomTemp <= inTemp && !roomHeat) {
     multiplex(LOW, HIGH, LOW, HIGH);
-  } else {
+    roomHeat = true;
+  } 
+  else if (currentRoomTemp >= inTemp && roomHeat) {
     multiplex(HIGH, HIGH, LOW, HIGH);
+    roomHeat = false;
   }
 }
 
