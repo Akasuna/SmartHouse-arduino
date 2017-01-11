@@ -123,7 +123,7 @@ void checkFirst5Byte() {
   }
   else if (inbytes[0] == '1' && inbytes[1] == '4' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read power consumption
-    readPowerCon();
+    Serial.print("14000" + readPowercomp(powerConsumption); );
   }
   else if (inbytes[0] == '1' && inbytes[1] == '5' && inbytes[2] == '0' && inbytes[3] == '0' && inbytes[4] == '0') {
     //read fire Alarm
@@ -182,7 +182,7 @@ void checkFirst5Byte() {
     for (int i = 0; i < 6; i++) {
       Serial.print(inbytes[i]);
     }
-    Serial.print("detta skickade du ");
+    Serial.print("XXXXXXXXX");
 
   }
 }
@@ -252,9 +252,7 @@ void readBurglerAlarm() {
     Serial.print("160000000");
   }
 }
-void readPowerCon() {
-  Serial.print(analogRead(A0));
-}
+
 void windowStatus() {
   if (digitalRead(window) == HIGH) {
     Serial.print("190000001");
@@ -280,6 +278,23 @@ void fanStatus() {
   }
 }
 
+String readPowercomp(int pin) { // can be used for in room and attic
+
+  String input = String(analogRead(pin));
+  String tmp = "";
+  if (input.length() == 1) {
+    tmp = "000" + input;
+  } else if (input.length() == 2) {
+    tmp = "00" + input;
+  } else if (input.length() == 3) {
+    tmp = "0" + input;
+  } else if (input.length() == 4) {
+    tmp = input;
+  } else {
+    tmp = "xxxx";
+  }
+  return power;
+}
 String readTemp(int pin) { // can be used for in room and attic
 
   String temp = String(analogRead(pin));
